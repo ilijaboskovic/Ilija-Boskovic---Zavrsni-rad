@@ -1,0 +1,428 @@
+{
+	"info": {
+		"_postman_id": "e4bb5a38-0f98-456f-b486-33d74ab4bd43",
+		"name": "Zavrsni ispit",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15494805"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 1000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});",
+							"",
+							"pm.test(\"Check token and save to env\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.access_token).to.be.a('string');",
+							"    pm.expect(jsonData.token_type).eq('bearer');",
+							"    pm.environment.set('access_token', jsonData.access_token);",
+							"    ",
+							"    pm.environment.set('user_id', jsonData.user_id);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"ilija.boskovic+1000@menu.app\",\n    \"password\": \"12345678\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/auth/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create gallery that contains one image",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Your test name\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var galleryID = jsonData.id;",
+							"    pm.environment.set('lastCreatedGalleryID', galleryID);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"1 image\",\n    \"description\": \"Gallery that contains one image\",\n    \"images\": [\n        \"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/640px-Image_created_with_a_mobile_phone.png\"\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/galleries",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"galleries"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check if gallery with 1 image has been created",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Response time is less than 1000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});",
+							"",
+							"pm.test(\"Check if created gallery is displayed on homepage\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var firstGalleryOnHomepageID = jsonData.galleries[0].id;",
+							"    var createdGalleryID = pm.environment.get('lastCreatedGalleryID');",
+							"    pm.expect(firstGalleryOnHomepageID).eq(createdGalleryID);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/galleries?page=1&term=",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"galleries"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "term",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Gallery with 2 images",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Your test name\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var galleryID = jsonData.id;",
+							"    pm.environment.set('lastCreatedGalleryID', galleryID);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Gallery with 2 images\",\n    \"description\": \"asdasd\",\n    \"images\": [\n        \"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/640px-Image_created_with_a_mobile_phone.png\",\n        \"https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/640px-Image_created_with_a_mobile_phone.png\"\n\n\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/galleries",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"galleries"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check gallery with 2 images",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Response time is less than 1000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});",
+							"",
+							"pm.test(\"Is gallery with 2 images created\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var images = jsonData.images;",
+							"    pm.expect(images).have.length(2);",
+							"   ",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/galleries/{{lastCreatedGalleryID}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"galleries",
+						"{{lastCreatedGalleryID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Gallery without description",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Created gallery id\",function(){",
+							"var jsonData = pm.response.json();",
+							"var lastCreatedGallery = jsonData.id;",
+							"pm.environment.set(\"lastCreatedGalleryID\",lastCreatedGallery);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Gallery withoud description\",\n    \"description\": \"\",\n    \"images\": [\n        \"https://media.istockphoto.com/id/1326144217/photo/temple-saint-sava.jpg?s=612x612&w=0&k=20&c=YY53Y6zHodEXOtaeyFSmk2Ad_C9hRvlDhwsOm2LKuTc=\"\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/galleries",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"galleries"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check gallery without description",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Response time is less than 1000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});",
+							"",
+							"pm.test(\"Check if created gallery is displayed on homepage\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    ",
+							"    pm.expect(jsonData.description).eq(null);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/galleries/{{lastCreatedGalleryID}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"galleries",
+						"{{lastCreatedGalleryID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Try to create a gallery without title",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 422\", function () {",
+							"    pm.response.to.have.status(422);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"asdasd\",\n    \"description\": \"asdasda\",\n    \"images\": [\n        \"\"\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/galleries",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"galleries"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
